@@ -1,18 +1,22 @@
 // miniprogram/pages/windex/windex.js
-const amapFile = require('../../libs/amap-wx.js')
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    city: {},
+    city: '',
+    location: '',
+    province: '',
     liveData: {},
     humidity: {},
-    temperature: {},
-    weather: {},
-    winddirection: {},
-    windpower: {}
+    curTemperature: '',
+    condTxt: '',
+    windDirection: '',
+    windPower: '',
+    airQualityIndex: '',
+    airQuality: '',
+    lifeIndexArr: []
   },
 
   /**
@@ -21,6 +25,8 @@ Page({
   onLoad: function (options) {
     this.getWeatherInfo()
     this.getWeatherInfo('forecast')
+    this.getWeatherInfo('lifestyle')
+    this.getAirInfo()
   },
 
   /**
@@ -71,31 +77,63 @@ Page({
   onShareAppMessage: function () {
 
   },
-
-  getWeatherInfo(type = '', city = '') {
-    const amap = new amapFile.AMapWX({key:'f40d1fc29bbfe2e1a1d6369cb88cf361'})
-    amap.getWeather({
-      city,
-      type,
-      success: (data) => {
-        if(!type || type === 'live') {
-          const {city, humidity, liveData, temperature, weather, winddirection, windpower} = data
-          this.setData({
-            city,
-            humidity,
-            liveData,
-            temperature,
-            weather,
-            winddirection,
-            windpower
-          })
-        } else {
-
+  setNowWeather(weather) {
+    this.setData({
+      location: weather.basic.location,
+      city: weather.basic.parent_city,
+      province: weather.basic.admin_area,
+      curTemperature: weather.now.tmp,
+      condTxt: weather.now.cond_txt,
+      humidity: weather.now.hum,
+      windDirection: weather.now.wind_dir,
+      windPower: weather.now.wind_sc
+    })
+  },
+  
+  getWeatherInfo(type = 'now', city = '') {
+    wx.request({
+      url: `https://free-api.heweather.net/s6/weather/${type}`,
+      data: this.formateParams(),
+      success: (res) => {
+        const data = res && res.data;
+        if(data) {
+          const weather = data.HeWeather6 && data.HeWeather6[0]
+          switch(type) {
+            case 'now':
+              this.setNowWeather(weather);
+              return
+            case 'lifestyle':
+              this.setData({
+                lifeIndexArr: weather.lifestyle
+              })
+              return
+          }
         }
-        console.log(data)
       },
-      fail: (info) => {
+      fail: () => {
 
+      }
+    })
+  },
+  formateParams(location = 'auto_ip') {
+    return {
+      key: 'f7f0e3c5bdbb47b8b3c92c9d7ef8dd68',
+      location
+    }
+  },
+  getAirInfo(type='now') {
+    wx.request({
+      url: `https://free-api.heweather.net/s6/air/${type}`,
+      data: this.formateParams(),
+      success: (res) => {
+        const data = res && res.data
+        if(data) {
+          const air = data.HeWeather6 && data.HeWeather6[0];
+          this.setData({
+            airQualityIndex: air.air_now_city.aqi,
+            airQuality: air.air_now_city.qlty
+          })
+        }
       }
     })
   }

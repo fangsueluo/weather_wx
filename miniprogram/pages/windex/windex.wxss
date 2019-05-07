@@ -3,6 +3,7 @@ page{
   font-size: 24rpx;
 }
 .weather{
+  position: relative;
   height: 600rpx;
   background: #44a6e9;
   color: #fff;
@@ -26,4 +27,38 @@ page{
 }
 .w-swiper{
   height: 50rpx;
+}
+.air{
+  position: absolute;
+  left: 10rpx;
+  top: 100rpx;
+  padding: 10rpx 25rpx;
+  background: #4ebd51;
+  border-radius: 15rpx;
+}
+/* 生活指数 */
+.life-index{
+  border-top: 1px solid #eee;
+}
+.life-swiper{
+  height: 500rpx;
+}
+.life-swiper swiper-item{
+  display: flex;
+  flex-wrap: wrap;
+}
+.life-item{
+  width: 33.33%;
+  height: 50%;
+  padding: 25rpx;
+  border-right: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.life-item .t1{
+  text-align: center;
+}
+.life-item .t2{
+  text-align: center;
 }
