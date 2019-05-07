@@ -1,0 +1,23 @@
+<!--miniprogram/pages/windex/windex.wxml-->
+
+<view>
+  <view class="weather">
+    <view class="city">当前区域：{{liveData.province}} {{liveData.city}}</view>
+    <view class="temperature">{{liveData.temperature}}<text class="du">°</text></view>
+    <view class="w-fz">{{liveData.weather}}</view>
+    <swiper 
+      autoplay
+      circular
+      vertical
+      easing-function="easeInOutCubic"
+      class="w-swiper"
+    >
+      <swiper-item>
+        <view>湿度 {{humidity.data}}</view>
+      </swiper-item>
+      <swiper-item >
+        <view>{{winddirection.data}} {{windpower.data}}</view>
+      </swiper-item>
+    </swiper>
+  </view>
+</view>

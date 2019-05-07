@@ -1,0 +1,29 @@
+/* miniprogram/pages/windex/windex.wxss */
+page{
+  font-size: 24rpx;
+}
+.weather{
+  height: 600rpx;
+  background: #44a6e9;
+  color: #fff;
+  text-align: center;
+}
+.city{
+  padding: 20rpx;
+  margin-bottom: 100rpx;
+}
+.temperature{
+  position: relative;
+  font-size: 164rpx;
+  line-height: 164rpx;
+}
+.du{
+  position: absolute;
+  font-size: 148rpx;
+}
+.w-fz{
+  font-size: 40rpx;
+}
+.w-swiper{
+  height: 50rpx;
+}
