@@ -62,3 +62,35 @@ page{
 .life-item .t2{
   text-align: center;
 }
+/* 天气预报 */
+.forecast{
+  padding: 50rpx 0;
+}
+.forecast .two-day{
+  display: flex;
+  align-items: center;
+}
+.forecast .day{
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 0 30rpx;
+}
+.forecast .day:first-child{
+  border-right: 1px solid #eee;
+}
+.forecast .two-day .item{
+  flex: 1;
+}
+.forecast .two-day .item:last-child{
+  text-align: right;
+}
+.forecast .two-day .pic{
+  width: 50rpx;
+}
+.forecast canvas{
+  width: 100%;
+  min-height: 100rpx;
+  margin: 0 auto;
+}

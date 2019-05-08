@@ -2,7 +2,7 @@
 <wxs module="filter" src="./filter.wxs"/>
 
 <view>
-  <!--  -->
+  <!-- 实时天气 -->
   <view class="weather">
     <view class="city">当前区域：{{location}}</view>
     <view class="temperature">{{curTemperature}}<text class="du">°</text>
@@ -27,12 +27,33 @@
       <view>{{airQuality}}</view>
     </view>
   </view>
-  <!--  -->
+  <!-- 天气预报 -->
+  <view class="forecast">
+    <view class='two-day'>
+      <view class='day' wx:for="{{filter.sliceArr(forecastData, 0, 2)}}" wx:key="index">
+        <view class='item'>
+          <view wx:if="{{index === 0}}">今天</view>
+          <view wx:else>明天</view>
+          <view wx:if="{{item.cond_txt_d !== item.cond_txt_n}}">{{item.cond_txt_d}}转{{item.cond_txt_n}}</view>
+          <view wx:else>{{item.cond_txt_d}}</view>
+        </view>
+        <view class='item'>
+          <view>{{item.tmp_max}}/{{item.tmp_min}}度</view>
+          <image class='pic' mode="widthFix" src="https://cdn.heweather.com/cond_icon/{{item.cond_code_d}}.png"></image>
+        </view>
+      </view>
+    </view>
+    <!--  -->
+    <view class='line-box'>
+      <canvas canvas-id='tmpMax' style="width: {{cWidth}}px;height:{{cHeight}}px;"></canvas>
+      <canvas canvas-id='tmpMin' style="width: {{cWidth}}px;height:{{cHeight}}px;"></canvas>
+    </view>
+  </view>
+  <!-- 生活指数 -->
   <view class='life-index'>
     <swiper class='life-swiper'>
       <swiper-item>
         <view  class="life-item" wx:for="{{filter.sliceArr(lifeIndexArr, 0, 6)}}" wx:key="1">
-          <!-- <image src="https://cdn.heweather.com/cond_icon/100.png"></image> -->
           <view class='t1'>{{filter.convertLifeStyleType(item.type)}}</view>
           <view class='t2'>{{item.brf}}</view>
           <view class='t3'>{{item.txt}}</view>
@@ -45,6 +66,6 @@
           <view class='t3'>{{item.txt}}</view>
         </view>
       </swiper-item>
-    </swiper>
+    </swiper> 
   </view>
 </view>
