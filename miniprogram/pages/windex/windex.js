@@ -18,19 +18,21 @@ Page({
     lifeIndexArr: [],
     forecastData: [],
     hourlyData: [],
-    cWidth: 100,
-    cHeight: 50
+    cWidth: 200,
+    cHeight: 100
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.getWeatherInfo()
-    this.getWeatherInfo('forecast')
-    this.getWeatherInfo('lifestyle')
-    this.getWeatherInfo('hourly')
-    this.getAirInfo()
+    // this.getWeatherInfo()
+    // this.getWeatherInfo('forecast')
+    // this.getWeatherInfo('lifestyle')
+    // this.getWeatherInfo('hourly')
+    // this.getAirInfo()
+    this.createCanvas('tmpMax', 'tmp_max', "#e78f44");
+    this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
   },
 
   /**
@@ -102,32 +104,46 @@ Page({
         const data = res && res.data;
         if(data) {
           const weather = data.HeWeather6 && data.HeWeather6[0]
-          switch(type) {
-            case 'now':
-              this.setNowWeather(weather);
-              return;
-            case 'lifestyle':
-              this.setData({
-                lifeIndexArr: weather.lifestyle
-              })
-              return;
-            case 'hourly':
-              this.setData({
-                hourlyData: []
-              })
-              return;
-            case 'forecast':
-              this.setData({
-                forecastData: weather.daily_forecast
-              });
-              this.createCanvas('tmpMax', 'tmp_max', "#e78f44");
-              this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
-              return;
+          if (weather.status === 'ok') {
+            switch (type) {
+              case 'now':
+                this.setNowWeather(weather);
+                return;
+              case 'lifestyle':
+                this.setData({
+                  lifeIndexArr: weather.lifestyle || []
+                })
+                return;
+              case 'hourly':
+                this.setData({
+                  hourlyData: []
+                })
+                return;
+              case 'forecast':
+                this.setData({
+                  forecastData: weather.daily_forecast || []
+                });
+                this.createCanvas('tmpMax', 'tmp_max', "#e78f44");
+                // this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
+                return;
+            }
+          } else {
+            wx.showToast({
+              title: weather.status,
+              icon: 'none'
+            })
           }
+        } else {
+          wx.showToast({
+            title: '请求失败',
+            icon: 'none'
+          })
         }
       },
-      fail: () => {
-
+      fail: (err) => {
+        wx.showToast({
+          title: err,
+        })
       }
     })
   },
@@ -145,9 +161,21 @@ Page({
         const data = res && res.data
         if(data) {
           const air = data.HeWeather6 && data.HeWeather6[0];
-          this.setData({
-            airQualityIndex: air.air_now_city.aqi,
-            airQuality: air.air_now_city.qlty
+          if (air.status === 'ok') {
+            this.setData({
+              airQualityIndex: air.air_now_city.aqi,
+              airQuality: air.air_now_city.qlty
+            })
+          } else {
+            wx.showToast({
+              title: air.status,
+              icon: 'none'
+            })
+          }
+        } else {
+          wx.showToast({
+            title: '请求失败',
+            icon: 'none'
           })
         }
       }
@@ -155,54 +183,97 @@ Page({
   },
   createCanvas(canvas, key, color, textUp=1) {
     const ctx = wx.createCanvasContext(canvas);
-    const data = this.data.forecastData;
-    const r = 3;
-    const t = 50;
-    const step = 80;
-    let curX = 20;
-    const dY = textUp ? 10 : 0;
-    const points = [];
-    const textY = textUp ? -10 : 20
+    const cWidth = this.data.cWidth;
+    const cHeight = this.data.cHeight;
+    const data = [
+      {
+        tmp_max: 15,
+        tmp_min: 13
+      },
+      {
+        tmp_max: 40,
+        tmp_min: 9
+      }, 
+      {
+        tmp_max: 28,
+        tmp_min: 18
+      },
+    ];
 
-    // 绘制线
+    const maxX = Math.max.apply(Math, data.map(function (o) { return o.tmp_max}));
+    const maxY = Math.max.apply(Math, data.map(function (o) { return o.tmp_min }));
+
+    const pd = 20;
+    const padding = {
+      top: pd,
+      right: pd,
+      bottom: pd,
+      left: pd
+    };
+    const origin = {
+      x: padding.left,
+      y: cHeight - padding.bottom
+    }
+    const axiosY = {
+      x: padding.left,
+      y: padding.top
+    }
+    const axiosX = {
+      x: cWidth - padding.right,
+      y: cHeight - padding.bottom
+    }
+    const step = pd * 3;
+    const textY = textUp ? -10 : 20;
+    let points = [];
+
     ctx.setStrokeStyle(color);
+    ctx.setLineWidth(2);
+    ctx.setFillStyle(color);
+    ctx.setFontSize(14);
+
     ctx.beginPath();
-    for (let i = 0; i < data.length; i++) {
-      const y = +data[i][key] + dY;
+    for(let i = 0; i < data.length; i++) {
+      const item = data[i];
+      const x = origin.x;
+      const y = origin.y - item[key];
       if(i === 0) {
-        ctx.moveTo(curX, y);
+        ctx.moveTo(x, y);
       } else {
-        ctx.lineTo(curX, y);
+        ctx.lineTo(x, y);
       }
-      points.push([curX, y]);
-      curX += step;
+      ctx.fillText(`${item[key]}°`, x - 8, y + textY);
+      points.push([x, y])
+      origin.x += step;
     }
     ctx.stroke();
-    console.log(points)
 
-    // 绘制点
-    ctx.setFillStyle(color);
-    ctx.setLineWidth(5);
+    const r = 4;
     ctx.setStrokeStyle('#fff');
-    curX = 20;
+    ctx.setFillStyle(color);
+    ctx.setLineWidth(3);
     for(let i = 0; i < points.length; i++) {
-      ctx.beginPath();
       const item = points[i];
+      ctx.beginPath();
       ctx.arc(item[0], item[1], r, 0, Math.PI * 2);
-      ctx.setFontSize(14);
-      ctx.fillText(`${item[1] - dY}°`, curX - 8, item[1] + textY);
       ctx.stroke();
       ctx.fill();
-      curX += step;
     }
 
-    const canvasW = points[points.length-1][0] - points[0][0];
-    // const canvasH = points[points.length - 1][1] - points[0][1];
-    this.setData({
-      cWidth: canvasW + 40,
-      cHeight: 50
-    })
-    // console.log(canvasW, canvasH)
+    const lastPoint = points[points.length - 1];
+    const axiosXMax = lastPoint[0] + padding.right;
+    let axiosYMax = 0;
+    for(let i = 0; i < points.length; i++) {
+      if (points[i][1] > axiosYMax) {
+        axiosYMax = points[i][1];
+      }
+    }
+    axiosYMax += padding.bottom *2;
+    // ctx.beginPath();
+    // ctx.rect(padding.left, origin.y, 100, 60);
+    // ctx.clip();
+
     ctx.draw();
+    console.log(axiosXMax)
+    console.log(axiosYMax)
   }
 })
