@@ -26,13 +26,11 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    // this.getWeatherInfo()
-    // this.getWeatherInfo('forecast')
-    // this.getWeatherInfo('lifestyle')
-    // this.getWeatherInfo('hourly')
-    // this.getAirInfo()
-    this.createCanvas('tmpMax');
-    // this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
+    this.getWeatherInfo()
+    this.getWeatherInfo('forecast')
+    this.getWeatherInfo('lifestyle')
+    this.getWeatherInfo('hourly')
+    this.getAirInfo()
   },
 
   /**
@@ -123,8 +121,7 @@ Page({
                 this.setData({
                   forecastData: weather.daily_forecast || []
                 });
-                this.createCanvas('tmpMax', 'tmp_max', "#e78f44");
-                // this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
+                this.createCanvas('tmpMax');
                 return;
             }
           } else {
@@ -224,9 +221,13 @@ Page({
     }
 
     this.drawLineChart(ctx, data, padding, cHeight, colors[0], 'tmp_max');
-    this.drawLineChart(ctx, data, padding, cHeight, colors[1], 'tmp_min', 20);
-
+    const points = this.drawLineChart(ctx, data, padding, cHeight, colors[1], 'tmp_min', 20);
     ctx.draw();
+    console.log(points)
+    const lastPoint = points[points.length-1];
+    this.setData({
+      cWidth: lastPoint[0] + padding.right
+    })
   },
   drawLineChart(ctx, data, padding, cHeight, color, key, textY = -10, pd = 20) {
     const origin = {
@@ -269,5 +270,6 @@ Page({
       ctx.fill();
     }
     ctx.save();
+    return points;
   }
 })
