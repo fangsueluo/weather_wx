@@ -31,8 +31,8 @@ Page({
     // this.getWeatherInfo('lifestyle')
     // this.getWeatherInfo('hourly')
     // this.getAirInfo()
-    this.createCanvas('tmpMax', 'tmp_max', "#e78f44");
-    this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
+    this.createCanvas('tmpMax');
+    // this.createCanvas('tmpMin', 'tmp_min', '#5db8e3', 0);
   },
 
   /**
@@ -181,17 +181,19 @@ Page({
       }
     })
   },
-  createCanvas(canvas, key, color, textUp=1) {
+  createCanvas(canvas) {
     const ctx = wx.createCanvasContext(canvas);
     const cWidth = this.data.cWidth;
     const cHeight = this.data.cHeight;
+    const colors = ["#e78f44", "#5db8e3"];
+
     const data = [
       {
-        tmp_max: 15,
+        tmp_max: 20,
         tmp_min: 13
       },
       {
-        tmp_max: 40,
+        tmp_max: 60,
         tmp_min: 9
       }, 
       {
@@ -199,21 +201,19 @@ Page({
         tmp_min: 18
       },
     ];
+    let key = 'tmp_max';
+    let textY = -10;
 
-    const maxX = Math.max.apply(Math, data.map(function (o) { return o.tmp_max}));
-    const maxY = Math.max.apply(Math, data.map(function (o) { return o.tmp_min }));
+    // const maxX = Math.max.apply(Math, data.map(function (o) { return o.tmp_max}));
+    // const maxY = Math.max.apply(Math, data.map(function (o) { return o.tmp_min }));
 
-    const pd = 20;
+    const pd = 18;
     const padding = {
       top: pd,
       right: pd,
       bottom: pd,
       left: pd
     };
-    const origin = {
-      x: padding.left,
-      y: cHeight - padding.bottom
-    }
     const axiosY = {
       x: padding.left,
       y: padding.top
@@ -222,9 +222,20 @@ Page({
       x: cWidth - padding.right,
       y: cHeight - padding.bottom
     }
+
+    this.drawLineChart(ctx, data, padding, cHeight, colors[0], 'tmp_max');
+    this.drawLineChart(ctx, data, padding, cHeight, colors[1], 'tmp_min', 20);
+
+    ctx.draw();
+  },
+  drawLineChart(ctx, data, padding, cHeight, color, key, textY = -10, pd = 20) {
+    const origin = {
+      x: padding.left,
+      y: cHeight - padding.bottom
+    }
     const step = pd * 3;
-    const textY = textUp ? -10 : 20;
     let points = [];
+    const r = 4;
 
     ctx.setStrokeStyle(color);
     ctx.setLineWidth(2);
@@ -232,11 +243,11 @@ Page({
     ctx.setFontSize(14);
 
     ctx.beginPath();
-    for(let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       const item = data[i];
       const x = origin.x;
       const y = origin.y - item[key];
-      if(i === 0) {
+      if (i === 0) {
         ctx.moveTo(x, y);
       } else {
         ctx.lineTo(x, y);
@@ -247,33 +258,16 @@ Page({
     }
     ctx.stroke();
 
-    const r = 4;
     ctx.setStrokeStyle('#fff');
     ctx.setFillStyle(color);
     ctx.setLineWidth(3);
-    for(let i = 0; i < points.length; i++) {
+    for (let i = 0; i < points.length; i++) {
       const item = points[i];
       ctx.beginPath();
       ctx.arc(item[0], item[1], r, 0, Math.PI * 2);
       ctx.stroke();
       ctx.fill();
     }
-
-    const lastPoint = points[points.length - 1];
-    const axiosXMax = lastPoint[0] + padding.right;
-    let axiosYMax = 0;
-    for(let i = 0; i < points.length; i++) {
-      if (points[i][1] > axiosYMax) {
-        axiosYMax = points[i][1];
-      }
-    }
-    axiosYMax += padding.bottom *2;
-    // ctx.beginPath();
-    // ctx.rect(padding.left, origin.y, 100, 60);
-    // ctx.clip();
-
-    ctx.draw();
-    console.log(axiosXMax)
-    console.log(axiosYMax)
+    ctx.save();
   }
 })

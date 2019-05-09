@@ -46,7 +46,7 @@
     <!--  -->
     <view class='line-box'>
       <canvas canvas-id='tmpMax' style="width: {{cWidth}}px;height:{{cHeight}}px;"></canvas>
-      <canvas canvas-id='tmpMin' style="width: {{cWidth}}px;height:{{cHeight}}px;"></canvas>
+      <!-- <canvas canvas-id='tmpMin' style="width: {{cWidth}}px;height:{{cHeight}}px;"></canvas> -->
     </view>
   </view>
   <!-- 生活指数 -->
