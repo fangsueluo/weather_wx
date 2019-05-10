@@ -1,7 +1,4 @@
 /* miniprogram/pages/windex/windex.wxss */
-page{
-  font-size: 24rpx;
-}
 .weather{
   position: relative;
   height: 600rpx;
@@ -15,12 +12,12 @@ page{
 }
 .temperature{
   position: relative;
-  font-size: 164rpx;
-  line-height: 164rpx;
+  font-size: 150rpx;
+  line-height: 150rpx;
 }
 .du{
   position: absolute;
-  font-size: 148rpx;
+  font-size: 138rpx;
 }
 .w-fz{
   font-size: 40rpx;
@@ -86,8 +83,25 @@ page{
 .forecast .two-day .item:last-child{
   text-align: right;
 }
-.forecast .two-day .pic{
+.pic{
   width: 50rpx;
+}
+.forecast-days{
+  margin-top: 30rpx;   
+  display: flex;
+  justify-content: center;
+}
+.forecast-days  .tc1{
+    color: #999;
+    font-size: 20rpx;
+}
+.forecast-days .tc2 {
+    color: #333;
+    padding: 15rpx 20rpx;
+}
+.forecast-dayitem{
+  text-align: center;
+  margin: 0 20rpx;
 }
 .forecast canvas{
   width: 100%;

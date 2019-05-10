@@ -1,7 +1,10 @@
 /**app.wxss**/
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
+page {
+  font-size: 24rpx;
 } 
+.nodata{
+  text-align: center;
+  padding: 60rpx;
+  font-size: 30rpx;
+  color: #666;
+}

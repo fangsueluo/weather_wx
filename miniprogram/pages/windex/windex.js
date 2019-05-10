@@ -1,4 +1,5 @@
 // miniprogram/pages/windex/windex.js
+const globalData = getApp().globalData;
 Page({
 
   /**
@@ -26,11 +27,16 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.getWeatherInfo()
-    this.getWeatherInfo('forecast')
-    this.getWeatherInfo('lifestyle')
-    this.getWeatherInfo('hourly')
-    this.getAirInfo()
+    console.log('option', options)
+    let location = '';
+    if(options.location) {
+      location = options.location;
+    }
+    this.getWeatherInfo('now', location)
+    this.getWeatherInfo('forecast', location)
+    this.getWeatherInfo('lifestyle', location)
+    this.getWeatherInfo('hourly', location)
+    this.getAirInfo('now', location);
   },
 
   /**
@@ -58,7 +64,6 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-
   },
 
   /**
@@ -81,9 +86,25 @@ Page({
   onShareAppMessage: function () {
 
   },
+  navigatorToSearch() {
+    wx.redirectTo({
+      url: "/pages/geo/geo",
+    })
+  },
+
   setNowWeather(weather) {
+    let locacion = '';
+    if (weather.basic.parent_city === weather.basic.location) {
+      if (weather.basic.parent_city === weather.basic.admin_area) {
+        locacion = weather.basic.location;
+      } else {
+        locacion = weather.basic.admin_area + ' ' + weather.basic.location;
+      }
+    } else {
+      locacion = weather.basic.parent_city + ' ' + weather.basic.location;
+    }
     this.setData({
-      location: weather.basic.location,
+      location: locacion,
       city: weather.basic.parent_city,
       province: weather.basic.admin_area,
       curTemperature: weather.now.tmp,
@@ -93,11 +114,10 @@ Page({
       windPower: weather.now.wind_sc
     })
   },
-  
   getWeatherInfo(type = 'now', city = '') {
     wx.request({
       url: `https://free-api.heweather.net/s6/weather/${type}`,
-      data: this.formateParams(),
+      data: this.formateParams(city),
       success: (res) => {
         const data = res && res.data;
         if(data) {
@@ -144,16 +164,16 @@ Page({
       }
     })
   },
-  formateParams(location = 'auto_ip') {
+  formateParams(location) {
     return {
-      key: 'f7f0e3c5bdbb47b8b3c92c9d7ef8dd68',
-      location
+      key: globalData.weatherKey,
+      location: location || 'auto_ip'
     }
   },
-  getAirInfo(type='now') {
+  getAirInfo(type='now', city = '') {
     wx.request({
       url: `https://free-api.heweather.net/s6/air/${type}`,
-      data: this.formateParams(),
+      data: this.formateParams(city),
       success: (res) => {
         const data = res && res.data
         if(data) {
@@ -184,31 +204,29 @@ Page({
     const cHeight = this.data.cHeight;
     const colors = ["#e78f44", "#5db8e3"];
 
-    const data = [
-      {
-        tmp_max: 20,
-        tmp_min: 13
-      },
-      {
-        tmp_max: 60,
-        tmp_min: 9
-      }, 
-      {
-        tmp_max: 28,
-        tmp_min: 18
-      },
-    ];
+    // const data = [
+    //   {
+    //     tmp_max: 20,
+    //     tmp_min: 13
+    //   },
+    //   {
+    //     tmp_max: 60,
+    //     tmp_min: 9
+    //   }, 
+    //   {
+    //     tmp_max: 28,
+    //     tmp_min: 18
+    //   },
+    // ];
+    const data = this.data.forecastData;
     let key = 'tmp_max';
     let textY = -10;
-
-    // const maxX = Math.max.apply(Math, data.map(function (o) { return o.tmp_max}));
-    // const maxY = Math.max.apply(Math, data.map(function (o) { return o.tmp_min }));
 
     const pd = 18;
     const padding = {
       top: pd,
       right: pd,
-      bottom: pd,
+      bottom: 40,
       left: pd
     };
     const axiosY = {
@@ -220,14 +238,21 @@ Page({
       y: cHeight - padding.bottom
     }
 
-    this.drawLineChart(ctx, data, padding, cHeight, colors[0], 'tmp_max');
-    const points = this.drawLineChart(ctx, data, padding, cHeight, colors[1], 'tmp_min', 20);
+    const points = this.drawLineChart(ctx, data, padding, cHeight, colors[0], 'tmp_max');
+    this.drawLineChart(ctx, data, padding, cHeight, colors[1], 'tmp_min', 20);
     ctx.draw();
     console.log(points)
-    const lastPoint = points[points.length-1];
-    this.setData({
-      cWidth: lastPoint[0] + padding.right
-    })
+    if(points && points.length) {
+      const maxY = Math.max.apply(Math, points.map(function (o) { return o[1] }));
+      console.log(maxY)
+      const lastPoint = points[points.length - 1];
+      this.setData({
+        cWidth: lastPoint[0] + padding.right,
+        cHeight: cHeight - maxY
+      })
+
+      console.log(this.data.cHeight)
+    }
   },
   drawLineChart(ctx, data, padding, cHeight, color, key, textY = -10, pd = 20) {
     const origin = {
@@ -243,6 +268,7 @@ Page({
     ctx.setFillStyle(color);
     ctx.setFontSize(14);
 
+    // 绘制折线
     ctx.beginPath();
     for (let i = 0; i < data.length; i++) {
       const item = data[i];
@@ -259,6 +285,7 @@ Page({
     }
     ctx.stroke();
 
+    // 绘制圆点
     ctx.setStrokeStyle('#fff');
     ctx.setFillStyle(color);
     ctx.setLineWidth(3);

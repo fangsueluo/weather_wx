@@ -1,3 +1,4 @@
+//此文件使用let会报错
 var convertLifeStyleType = function (type) {
   switch (type) {
     case 'comf':
@@ -42,7 +43,26 @@ var sliceArr = function(arr, start=0, end=6) {
   return arr.slice(start, end)
 }
 
+var myGetDate = function(date) {
+  console.log(date)
+  var time = getDate(date);
+  var month = time.getMonth()+1;
+  var day = time.getDate();
+  return addZero(month) + '/' + addZero(day);
+}
+
+var addZero = function (data) {
+  return data < 10 ? '0'+data : data;
+}
+
+var isInclude = function(data1, data2) {
+  console.log(data1.indexOf(data2) >= 0)
+  return data1.indexOf(data2) >= 0
+}
+
 module.exports = {
   convertLifeStyleType: convertLifeStyleType,
-  sliceArr: sliceArr
+  sliceArr: sliceArr,
+  getDate: myGetDate,
+  isInclude: isInclude
 }
