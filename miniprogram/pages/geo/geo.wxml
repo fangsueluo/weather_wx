@@ -8,18 +8,21 @@
         <text class='search-btn' bindtap='searchCities'>取消</text>
     </view>
     <!-- 搜索结果 -->
-    <view class='search-result' hidden='{{!searchInput ||!searchResData.length}}'>
-      <block wx:if="searchResData.length">
-        <view class='item' wx:for="{{searchResData}}" wx:key="{{item.location}}">
-        <navigator open-type='redirect' url="/pages/windex/windex?location={{item.lat}},{{item.lon}}">
+    <view  class='search-result' hidden='{{!searchInput ||!searchResData.length}}'>
+      <block wx:if="{{searchResData.length}}">
+        <view class='item' 
+        bindtap='handleNavigator(item.lat, item.lon)' 
+        wx:for="{{searchResData}}" 
+        wx:key="{{item.location}}"
+        >
           <text class="{{filter.isInclude(item.admin_area, searchInput) ? 'highlight' : ''}}">{{item.admin_area}}</text>,
-        <text class="{{item.parent_city.indexOf(searchInput) >= 0 ? 'highlight' : ''}}">{{item.parent_city}}</text>,
-        <text class="{{filter.isInclude(item.location, searchInput) ? 'highlight' : ''}}">{{item.location}}</text>
-        </navigator>
-      </view>
+          <text class="{{item.parent_city.indexOf(searchInput) >= 0 ? 'highlight' : ''}}">{{item.parent_city}}</text>,
+          <text class="{{filter.isInclude(item.location, searchInput) ? 'highlight' : ''}}">{{item.location}}</text>
+        </view>
       </block>
     </view>
-    <view hidden="{{searchInput && !searchResData.length}}" class='nodata'>搜索不到该城市</view>
+    <!-- <view style="{{isShowNone ? 'display: block' : 'display: none'}}" class='nodata'>搜索不到该城市</view> -->
+    <view hidden="{{isShowNone}}" class='nodata'>搜索不到该城市</view>
     <!-- 城市罗列 -->
     <view hidden='{{searchInput}}'>
       <view class='block'>
@@ -28,26 +31,30 @@
           <view class='item'>朝阳区</view>
         </view>
       </view>
-      <view class='block'>
+      <view class='block' wx:if="{{searchHistroy.length}}">
         <view class='caption'>历史搜索：</view>
         <view class='inner'>
-          <view class='item'>朝阳区</view>
-          <view class='item'>朝阳区</view>
-          <view class='item'>朝阳区</view>
-          <view class='item'>朝阳区</view>
+          <view class='item' 
+          wx:for="{{searchHistroy}}"
+          wx:key="{{item.location}}"
+          data-geo = "{{item}}"
+          bindtap='handleNavigator'
+          >
+          {{item.location}}
+          </view>
         </view>
       </view>
       <view class='block'>
         <view class='caption'>热门城市：</view>
         <view class='inner'>
-          <navigator class='item' 
-          open-type='redirect'
+          <view class='item' 
           wx:for="{{hotCities}}" 
           wx:key="{{item.location}}"
-          url="/pages/windex/windex?location={{item.lat}},{{item.lon}}"
+          data-geo = "{{item}}"
+          bindtap='handleNavigator'
           >
           {{item.location}}
-          </navigator>
+          </view>
         </view>
       </view>
       <view class='block'>

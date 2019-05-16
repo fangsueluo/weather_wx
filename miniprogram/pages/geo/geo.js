@@ -1,4 +1,6 @@
 // miniprogram/pages/geo/geo.js
+const util = require('../../libs/util.js');
+console.log(util)
 const globalData = getApp().globalData;
 Page({
 
@@ -8,16 +10,25 @@ Page({
     data: {
       searchInput: '',
       searchResData: [],
-      hotCities: []
+      hotCities: [],
+      searchHistroy: [],
+      isShowNone: true,
+      maxHistroies: 4
     },
 
     /**
      * 生命周期函数--监听页面加载
      */
     onLoad: function (options) {
-      this.searchCities();
-      console.log(this.data.searchInput && !this.data.searchResData.length)
       this.getHotCities();
+      const histroyCity = wx.getStorageSync('histroyCity')
+      if(histroyCity) {
+        const arr = JSON.parse(histroyCity);
+        this.data.searchHistroy = arr.map((item, key) => {
+          return Object.values(item)
+        })
+      }
+      console.log(this.data.searchHistroy)
     },
 
     /**
@@ -68,40 +79,102 @@ Page({
     onShareAppMessage: function () {
 
     },
+    handleNavigator(e) {
+      console.log(e)
+      const geo = e.currentTarget.dataset.geo;
+      let url = `/pages/windex/windex?location=${geo.lat},${geo.lon}`
+      this.handleSearchHistroy(geo)
+      // wx.redirectTo({
+      //   url,
+      //   success: () => {
+      //     this.handleSearchHistroy(geo)
+      //     console.log('跳转成功')
+      //   },
+      //   fail: () => {
+      //     console.log('跳转失败')
+      //   }
+      // })
+    },
+    handleSearchHistroy(data) {
+      let histroies = wx.getStorageSync('histroyCity') || "[]";
+      histroies = JSON.parse(histroies)
+      const index = histroies.findIndex((item) => {
+        return data.cid === item.cid
+      })
+      
+      if (index >= 0) {
+        histroies.splice(index, 1);
+      }
+      histroies.unshift({ [data.cid]: data })
+      console.log('a: ',histroies)
+      const len = histroies.length - this.data.maxHistroies
+      if (len > 0) {
+        histroies.splice(this.data.maxHistroies-1, 1)
+      }
+      console.log('b:',JSON.stringify(histroies))
+      wx.setStorageSync('histroyCity', JSON.stringify(this.data.searchHistroy))
+    },
     bindSearchInput(e){
+      const input = e.detail.value;
+      if(!input) {
+        this.showNoneBlock(true);
+      }
       this.setData({
-        searchInput: e.detail.value
+        searchInput: input
       })
     },
+    trimInput(input) {
+      if (!util.trim(input)) {
+        wx.showToast({
+          title: '请输入搜索内容',
+        })
+        this.setData({
+          searchInput: ''
+        })
+        return false;
+      }
+      return true;
+    },
     searchCities() {
-      wx.request({
-        url: 'https://search.heweather.net/find',
-        data: {
-          key: globalData.weatherKey,
-          location: this.data.searchInput
-        },
-        success: (res) => {
-          const rdata = res.data;
-          if (rdata) {
-            let sdata = rdata.HeWeather6;
-            if (sdata && sdata.length) {
-              sdata = sdata[0];
-              if(sdata.status === 'ok') {
-                this.setData({
-                  searchResData: sdata.basic || []
-                })
-                console.log(this.data.searchResData)
+      const input = this.data.searchInput;
+      if (this.trimInput(input)) {
+        wx.request({
+          url: 'https://search.heweather.net/find',
+          data: {
+            key: globalData.weatherKey,
+            location: input
+          },
+          success: (res) => {
+            const rdata = res.data;
+            if (rdata) {
+              let sdata = rdata.HeWeather6;
+              if (sdata && sdata.length) {
+                sdata = sdata[0];
+                if (sdata.status === 'ok') {
+                  this.setData({
+                    searchResData: sdata.basic || []
+                  })
+                  this.showNoneBlock(true);
+                } else {
+                  this.setData({
+                    searchResData: []
+                  })
+                  this.showNoneBlock(false);
+                }
               } else {
-                this.setData({
-                  searchResData: []
-                })
+                this.showNoneBlock(false);
               }
             }
+          },
+          fail: () => {
+            this.showNoneBlock(false);
           }
-        },
-        fail: () => {
-
-        }
+        })
+      }
+    },
+    showNoneBlock(flag) {
+      this.setData({
+        isShowNone: flag
       })
     },
     getHotCities() {
@@ -126,7 +199,6 @@ Page({
           }
         },
         fail: (err) => {
-
         }
       })
     }
