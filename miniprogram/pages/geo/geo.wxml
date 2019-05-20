@@ -5,7 +5,7 @@
         <input class='search-input' placeholder='搜索市、区、县等'
           bindinput='bindSearchInput'
         ></input>
-        <text class='search-btn' bindtap='searchCities'>取消</text>
+        <text class='search-btn' bindtap='backToPage'>取消</text>
     </view>
     <!-- 搜索结果 -->
     <view  class='search-result' hidden='{{!searchInput ||!searchResData.length}}'>

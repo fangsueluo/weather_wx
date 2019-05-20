@@ -1,10 +1,6 @@
 //app.js
 const amapFile = require('./libs/amap-wx.js');
 App({
-  globalData: {
-    weatherKey: 'f7f0e3c5bdbb47b8b3c92c9d7ef8dd68',
-    geoKey: 'f40d1fc29bbfe2e1a1d6369cb88cf361'
-  },
   onLaunch: function () {
     
     if (!wx.cloud) {

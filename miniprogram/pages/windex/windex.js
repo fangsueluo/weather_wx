@@ -1,5 +1,5 @@
 // miniprogram/pages/windex/windex.js
-const globalData = getApp().globalData;
+const config = require('../../libs/config.js').default
 Page({
 
   /**
@@ -166,7 +166,7 @@ Page({
   },
   formateParams(location) {
     return {
-      key: globalData.weatherKey,
+      key: config.weatherKey,
       location: location || 'auto_ip'
     }
   },
@@ -204,20 +204,6 @@ Page({
     const cHeight = this.data.cHeight;
     const colors = ["#e78f44", "#5db8e3"];
 
-    // const data = [
-    //   {
-    //     tmp_max: 20,
-    //     tmp_min: 13
-    //   },
-    //   {
-    //     tmp_max: 60,
-    //     tmp_min: 9
-    //   }, 
-    //   {
-    //     tmp_max: 28,
-    //     tmp_min: 18
-    //   },
-    // ];
     const data = this.data.forecastData;
     let key = 'tmp_max';
     let textY = -10;
@@ -244,14 +230,12 @@ Page({
     console.log(points)
     if(points && points.length) {
       const maxY = Math.max.apply(Math, points.map(function (o) { return o[1] }));
-      console.log(maxY)
       const lastPoint = points[points.length - 1];
       this.setData({
         cWidth: lastPoint[0] + padding.right,
-        cHeight: cHeight - maxY
+        cHeight: cHeight - maxY + padding.top
       })
 
-      console.log(this.data.cHeight)
     }
   },
   drawLineChart(ctx, data, padding, cHeight, color, key, textY = -10, pd = 20) {

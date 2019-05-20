@@ -175,6 +175,11 @@ Page({
         })
       }
     },
+    backToPage() {
+      wx.redirectTo({
+        url: '',
+      })
+    },
     showNoneBlock(flag) {
       this.setData({
         isShowNone: flag

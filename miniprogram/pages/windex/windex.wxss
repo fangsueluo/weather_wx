@@ -93,7 +93,6 @@
 }
 .forecast-days  .tc1{
     color: #999;
-    font-size: 20rpx;
 }
 .forecast-days .tc2 {
     color: #333;

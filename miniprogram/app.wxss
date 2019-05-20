@@ -1,6 +1,6 @@
 /**app.wxss**/
 page {
-  font-size: 24rpx;
+  font-size: 28rpx;
 } 
 .nodata{
   text-align: center;
