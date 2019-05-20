@@ -1,5 +1,6 @@
 //app.js
 const amapFile = require('./libs/amap-wx.js');
+const config = require('./libs/config.js').default
 App({
   onLaunch: function () {
     
@@ -11,17 +12,16 @@ App({
       })
     }
 
-    // this.getGeo();
+    this.getGeo();
   },
   getGeo() {
-    const myAmapFun = new amapFile.AMapWX({ key: this.globalData.geoKey });
+    const myAmapFun = new amapFile.AMapWX({ key: config.geoKey });
     myAmapFun.getRegeo({
       success: function (data) {
         //成功回调
-        console.log(data)
         if(data && data.length) {
           const addressComponent = data[0].regeocodeData.addressComponent;
-          const curArea = addressComponent.city ? addressComponent.city : addressComponent.district;
+          const curArea = addressComponent.city.length ? addressComponent.city : addressComponent.district;
           const adcode = addressComponent.adcode;
           wx.setStorageSync('curArea', curArea);
         }

@@ -1,5 +1,5 @@
 // miniprogram/pages/windex/windex.js
-const config = require('../../libs/config.js').default
+const config = require('../../libs/config.js').default;
 Page({
 
   /**
@@ -27,7 +27,6 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    console.log('option', options)
     let location = '';
     if(options.location) {
       location = options.location;
@@ -167,7 +166,7 @@ Page({
   formateParams(location) {
     return {
       key: config.weatherKey,
-      location: location || 'auto_ip'
+      location: location || wx.getStorageSync('userLocation') || 'auto_ip'
     }
   },
   getAirInfo(type='now', city = '') {
@@ -227,7 +226,6 @@ Page({
     const points = this.drawLineChart(ctx, data, padding, cHeight, colors[0], 'tmp_max');
     this.drawLineChart(ctx, data, padding, cHeight, colors[1], 'tmp_min', 20);
     ctx.draw();
-    console.log(points)
     if(points && points.length) {
       const maxY = Math.max.apply(Math, points.map(function (o) { return o[1] }));
       const lastPoint = points[points.length - 1];

@@ -1,7 +1,7 @@
 {
     "pages": [
+      "pages/geo/geo",
         "pages/windex/windex",
-        "pages/geo/geo",
         "pages/index/index",
         "pages/userConsole/userConsole",
         "pages/storageConsole/storageConsole",

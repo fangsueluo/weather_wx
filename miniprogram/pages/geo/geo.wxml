@@ -11,8 +11,9 @@
     <view  class='search-result' hidden='{{!searchInput ||!searchResData.length}}'>
       <block wx:if="{{searchResData.length}}">
         <view class='item' 
-        bindtap='handleNavigator(item.lat, item.lon)' 
+        bindtap='handleNavigator' 
         wx:for="{{searchResData}}" 
+        data-geo = "{{item}}"
         wx:key="{{item.location}}"
         >
           <text class="{{filter.isInclude(item.admin_area, searchInput) ? 'highlight' : ''}}">{{item.admin_area}}</text>,
@@ -27,7 +28,7 @@
       <view class='block'>
         <view class='caption'>当前定位：</view>
         <view class='inner'>
-          <view class='item'>朝阳区</view>
+          <view class='item'>{{curArea}}</view>
         </view>
       </view>
       <view class='block' wx:if="{{searchHistroy.length}}">
@@ -56,10 +57,17 @@
           </view>
         </view>
       </view>
-      <view class='block'>
+      <view class='block' wx:if="{{hostScenic.length}}">
         <view class='caption'>热门景区：</view>
         <view class='inner'>
-          <view class='item'>朝阳区</view>
+          <view class='item' 
+          wx:for="{{hostScenic}}" 
+          wx:key="{{item.location}}"
+          data-geo = "{{item}}"
+          bindtap='handleNavigator'
+          >
+          {{item.location}}
+          </view>
         </view>
       </view>
     </view>

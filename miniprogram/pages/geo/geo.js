@@ -1,7 +1,6 @@
 // miniprogram/pages/geo/geo.js
 const util = require('../../libs/util.js');
-console.log(util)
-const globalData = getApp().globalData;
+const config = require('../../libs/config.js').default;
 Page({
 
     /**
@@ -11,9 +10,11 @@ Page({
       searchInput: '',
       searchResData: [],
       hotCities: [],
+      hostScenic: [],
       searchHistroy: [],
       isShowNone: true,
-      maxHistroies: 4
+      maxHistroies: 4,
+      curArea: wx.getStorageSync('curArea')
     },
 
     /**
@@ -86,7 +87,6 @@ Page({
 
     },
     handleNavigator(e) {
-      console.log(e)
       const geo = e.currentTarget.dataset.geo;
       let url = `/pages/windex/windex?location=${geo.lat},${geo.lon}`
       wx.redirectTo({
@@ -125,6 +125,7 @@ Page({
       this.setData({
         searchInput: input
       })
+      util.debounce(this.searchCities)()
     },
     trimInput(input) {
       if (!util.trim(input)) {
@@ -144,7 +145,7 @@ Page({
         wx.request({
           url: 'https://search.heweather.net/find',
           data: {
-            key: globalData.weatherKey,
+            key: config.weatherKey,
             location: input
           },
           success: (res) => {
@@ -176,9 +177,13 @@ Page({
       }
     },
     backToPage() {
-      wx.redirectTo({
-        url: '',
-      })
+      const location = wx.getStorageSync('userLocation')
+      if (location) {
+        const geo = location.split(',')
+        wx.redirectTo({
+          url: `/pages/windex/windex?location=${geo[0]},${geo[1]}`,
+        })
+      }
     },
     showNoneBlock(flag) {
       this.setData({
@@ -189,7 +194,7 @@ Page({
       wx.request({
         url: 'https://search.heweather.net/top',
         data: {
-          key: globalData.weatherKey,
+          key: config.weatherKey,
           group: 'cn'
         },
         success: (res) => {
