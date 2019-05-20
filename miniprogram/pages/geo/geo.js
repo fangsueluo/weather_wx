@@ -22,13 +22,19 @@ Page({
     onLoad: function (options) {
       this.getHotCities();
       const histroyCity = wx.getStorageSync('histroyCity')
+      let newArr = []
       if(histroyCity) {
-        const arr = JSON.parse(histroyCity);
-        this.data.searchHistroy = arr.map((item, key) => {
-          return Object.values(item)
-        })
+        let arr = JSON.parse(histroyCity);
+        
+        arr = new Map(arr)
+        
+        for(let [key, value] of arr) {
+          newArr.push(value)
+        }
       }
-      console.log(this.data.searchHistroy)
+      this.setData({
+        searchHistroy: newArr
+      })
     },
 
     /**
@@ -83,36 +89,33 @@ Page({
       console.log(e)
       const geo = e.currentTarget.dataset.geo;
       let url = `/pages/windex/windex?location=${geo.lat},${geo.lon}`
-      this.handleSearchHistroy(geo)
-      // wx.redirectTo({
-      //   url,
-      //   success: () => {
-      //     this.handleSearchHistroy(geo)
-      //     console.log('跳转成功')
-      //   },
-      //   fail: () => {
-      //     console.log('跳转失败')
-      //   }
-      // })
+      wx.redirectTo({
+        url,
+        success: () => {
+          this.handleSearchHistroy(geo)
+          console.log('跳转成功')
+        },
+        fail: () => {
+          console.log('跳转失败')
+        }
+      })
     },
     handleSearchHistroy(data) {
       let histroies = wx.getStorageSync('histroyCity') || "[]";
       histroies = JSON.parse(histroies)
       const index = histroies.findIndex((item) => {
-        return data.cid === item.cid
+        return data.cid === item[0]
       })
       
       if (index >= 0) {
         histroies.splice(index, 1);
       }
-      histroies.unshift({ [data.cid]: data })
-      console.log('a: ',histroies)
+      histroies.unshift([data.cid, data ])
       const len = histroies.length - this.data.maxHistroies
       if (len > 0) {
-        histroies.splice(this.data.maxHistroies-1, 1)
+        histroies.splice(this.data.maxHistroies, 1)
       }
-      console.log('b:',JSON.stringify(histroies))
-      wx.setStorageSync('histroyCity', JSON.stringify(this.data.searchHistroy))
+      wx.setStorageSync('histroyCity', JSON.stringify(histroies))
     },
     bindSearchInput(e){
       const input = e.detail.value;
